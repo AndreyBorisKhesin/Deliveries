@@ -1,32 +1,39 @@
 from numpy import *
 
 past = loadtxt("monthly_sales.csv")
+shop_coords = {
+	 0: ( 2, 6)
+	 1: (10, 6)
+	 2: ( 3, 5)
+	 3: ( 5, 5)
+	 4: ( 8, 5)
+	 5: ( 0, 4)
+	 6: ( 2, 3)
+	 7: ( 6, 3)
+	 8: (10, 3)
+	 9: (12, 3)
+	10: ( 1, 2)
+	11: ( 4, 2)
+	12: (11, 2)
+	13: ( 3, 1)
+	14: ( 8, 1)
+	15: (10, 1)
+	16: ( 2, 0)
+	17: ( 4, 0)
+	18: ( 7, 0)
+	19: (12, 0)
+	20: ( 4, 3)
+	21: ( 9, 2)
+	22: ( 1, 4)
+	23: ( 6, 1)
+}
 
-def coord_to_shop(x, y):
-	return {
-		20:  0,
-		76:  1,
-		26:  2,
-		40:  3,
-		61:  4,
-		 4:  5,
-		17:  6,
-		45:  7,
-		73:  8,
-		87:  9,
-		 9: 10,
-		30: 11,
-		79: 12,
-		22: 13,
-		57: 14,
-		71: 15,
-		14: 16,
-		28: 17,
-		49: 18,
-		84: 19,
-		31: 20,
-		65: 21
-	}.get(7 * x + y, -1)
+def dist_from_shops(a, b):
+	return (abs(shop_coords.get(a)[0] - shop_coords.get(b)[0]) +
+		abs(shop_coords.get(a)[1] - shop_coords.get(b)[1]))
+
+def total_dist(stops):
+	return sum([dist_from_shops(i, i + 1) for i in range(len(stops) - 1)])
 
 def customers():
 	return [[[int(round(past[month, 2 * store + product] *
