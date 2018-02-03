@@ -1,0 +1,15 @@
+Each truck can hold 50 heaters or 25 air conditioners.
+So H + 2AC cannot exceed 50.
+
+P1 is the air conditioner because P2 is a heater based on purchases in summer
+and winter months.
+
+An average of the sales of a given product on a given day of the week showed
+that there is no difference between sales by day of the week.
+In terms of standard deviation, the highest was 1.88502, which is outside of
+the middle 0.940573 events, but p > 0.05 so we are forced to reject the
+hypothesis that noticably fewer air conditioners are sold on Friday than on
+any other day.
+
+We can, however, clearly see that an average of 7.82856 air conditioners are
+sold every day, compared to only 4.47898 heaters.

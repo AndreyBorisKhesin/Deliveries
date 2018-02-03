@@ -2,6 +2,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage{calc}
 \usepackage{capt-of}
 \usepackage{caption}
 \usepackage[strict]{changepage}
@@ -33,8 +34,6 @@
 
 \patchcmd{\thebibliography}{\section*{\refname}}{\vspace{-1em}}{}{}
 
-\singlespacing
-
 \captionsetup{labelformat=empty,labelsep=none}
 \usepgfplotslibrary{external}
 \usetikzlibrary{positioning,matrix,shapes,chains,arrows}
@@ -59,8 +58,6 @@
 \pdf{#1ex}}
 \newcommand\code[0]{\renewcommand\pdf[1]{\noindent
 \includegraphics[width=\columnwidth]{code/##1.pdf}}}
-\newcommand\size[2]{{\fontsize{#1pt}{#1pt}\selectfont#2}}
-\newcommand\brokensize[2]{\fontsize{#1pt}{#1pt}\selectfont#2}
 
 % Indent
 \setlength{\parindent}{0.3in}
@@ -225,7 +222,6 @@
     \setlength\topsep\z@
     \setlength\listparindent\parindent
     \setlength\parsep\parskip
-    \linespread{0.75}\selectfont
     \@ifmtarg{#1}{\setlength{\leftmargin}{\z@}}
                  {\setlength{\leftmargin}{#1}}
     \@ifmtarg{#2}{\setlength{\rightmargin}{\z@}}
@@ -310,18 +306,17 @@
 \tag*{\fontsize{12pt}{12pt}\selectfont
 $\begin{array}{r}
 \cr{\text{(\arabic{papereqcounter})}}
-\cr{\fontsize{9pt}{9pt}\selectfont\textit{\ifx\\#3\\~\else(\fi#3\ifx\\#3\\~
-\else)\fi}}
+\cr{\fontsize{9pt}{9pt}\selectfont\textit{\ifx\\#3\\~\else(#3)\fi}}
 \end{array}$}
 \end{equation*}
+
 }
 \expandafter\edef\csname eq#1\endcsname{(\arabic{papereqcounter})\noexpand
 \xspace}}
 
 % Where
 \newcommand{\papervar}[3]
-{&$#1$ & #2 \ifx\\#3\\~\else($\smash{\text{\si{\fi
-#3\ifx\\#3\\~\else}}}$)\fi\\}
+{&$#1$ & #2 \ifx\\#3\\~\else($\smash{\text{\si{#3}}}$)\fi\\}
 \newenvironment{paperwhere}
 {\begin{minipage}{\columnwidth}
 \bgroup\fontsize{9pt}{9pt}\selectfont Where:\vspace{2pt}\\\begin{tabular}
