@@ -50,8 +50,10 @@ def schedule():
 				p1, p2 = 0, 0
 				if warehouse_capacity[w][0] > 0:
 					p1 = 20 / 0.4
+					warehouse_capacity[w][0] -= p1
 				if warehouse_capacity[w][1] > 0:
 					p2 = (20 - 0.4 * p1) // 0.8
+					warehouse_capacity[w][1] -= p2
 				route = {"date": day, 
 						"stops": [[w+20, p1, p2], [w+22, -p1, -p2], [w+20, 0, 0]]}
 				schedule.append(route)
@@ -62,7 +64,7 @@ def schedule():
 						[15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 
 						30, 30, 30, 35, 30, 40, 25, 20, 15, 20]]
 	
-		for store in range(len(20)):
+		for store in range(20):
 			if store in [0, 2, 3, 5, 6, 10, 11, 13, 16, 17]:
 				warehouse = 20
 			else:
