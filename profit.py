@@ -3,8 +3,8 @@ from numpy import *
 past = loadtxt("monthly_sales.csv")
 
 def customers():
-	return [[[round(past[month, 2 * store + product] *
-		(0.9 + 0.2 * random.rand()) for product in range(2)]
+	return [[[int(round(past[month, 2 * store + product] *
+		(0.9 + 0.2 * random.rand()))) for product in range(2)]
 		for store in range(20)] for month in range(12)]
 
 def profit(schedule):
@@ -31,7 +31,7 @@ def profit(schedule):
 
 		for i in range(len(312)):
 
-			
+			stock = np.zeros(22)
 			
 			currx, curry = route["starting"]
 			for dist, direction in route["path"]:
@@ -43,7 +43,8 @@ def profit(schedule):
 					cost += dist
 
 				else: # load / unload
-				
+					shop = coord_to_shop
+					stock[]
 
 			customers[i]
 
