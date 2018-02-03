@@ -28,28 +28,52 @@ def profit(schedule):
 		customers = customers() # (320, 20, 2)
 		cost = 0
 		revenue = 0
+		stock = zeros((22, 2)) # s1 - s20, w1, w2
+		route_idx = 0
 
-		for i in range(len(312)):
+		for day in range(len(313)):
 
-			stock = np.zeros(22)
+			for j in range(route_idx, len(schedule)):
+
+				if schedule[j]["day"] == day:
+					route = schedule[j]
+					route_idx += 1
+				else:
+				 	break
 			
-			currx, curry = route["starting"]
-			for dist, direction in route["path"]:
-				if (dist, direction) != (0, 0):
-					if direction:
-						currx += dist
+				currx, curry = route["starting"]
+				truckp1, truckp1 = (0, 0)
+				stop = 0
+
+				for dist, direction in route["path"]:
+					if (dist, direction) != (0, 0):
+						if direction:
+							currx += dist
+						else:
+							curry += dist 
+						cost += dist
+
+					else: 
+						number = coord_to_shop(currx, curry)
+						if number != -1: # load / unload at a store / warehouse
+							stock[number][0] += route["stops"][stop][0]
+							stock[number][1] += route["stops"][stop][1]
+						# load at a plant
+						truckp1 += route["stops"][stop][0]
+						truckp2 += route["stops"][stop][1]
+						stop += 1
+
+			for j in range(20):
+				for k in range(2):
+					if customers[day][j][k] <= stock[j][k]:
+						revenue += (300 - 200 * k) * customers[day][j][k]
 					else:
-						curry += dist 
-					cost += dist
-
-				else: # load / unload
-					shop = coord_to_shop
-					stock[]
-
-			customers[i]
+						revenue += (300 - 200 * k) * stock[j][k]
+						for l in range(customers[day][j][k] - stock[j][k]):
+							if random.rand() < 0.8 and day != 312:
+								customers[day + 1][j][k] += 1
 
 		profit = cost - revenue
 		profits.append(profit)
 
-	profit = cost - revenue
-	return profit
+	return profits
