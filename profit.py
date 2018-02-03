@@ -1,6 +1,6 @@
 from numpy import *
 
-past = loadtxt("monthly_sales.csv")
+past = loadtxt("monthly_sales.csv")			
 
 def coord_to_shop(x, y):
 	return {
@@ -38,28 +38,32 @@ def profit(schedule):
 	schedule: A list of routes
 	route: A dictionary that represents a delivery route of a truck
 		{	"date": int, 
-			"stops"; list of tuples representing the number of p1 and p2 the drop off, 
-			"path": list of tuples representing the distance and direction 
-				(True = EW, False = NS and (0, 0) means stop),
+			"stops"; list of triples representing the point 
+			(store / warehouse / plant), number of p1 and p2 the drop off, 
 			"starting": starting point of truck	}
 		Example: 
 		{	"date": 98, 
-			"stops": [(3, 5), (-4, 7), (-2, 0)], 
-			"path": [(5, False), (0, True), (-3, True), (0, 0)]	
+			"stops": [(20, 3, 5), (13, -4, 7), (15, -2, 0)], 	
 			"starting": (3, 5)	}
 	"""
 	profits = []
 
 	for i in len(range(100)):
+
 		customers = customers() # (320, 20, 2)
 		cost = 0
 		revenue = 0
 		stock = zeros((22, 2)) # s1 - s20, w1, w2
 		route_idx = 0
+		shop_capacity = [15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 
+						30, 30, 30, 35, 30, 40, 25, 20, 15, 20]
+		warehouse_capacity = [[650, 650], [650, 650]]
 
 		for day in range(len(313)):
 
 			for j in range(route_idx, len(schedule)):
+
+				truck_capacity = 
 
 				if schedule[j]["day"] == day:
 					route = schedule[j]
@@ -68,26 +72,24 @@ def profit(schedule):
 				 	break
 			
 				currx, curry = route["starting"]
-				truckp1, truckp1 = (0, 0)
 				stop = 0
 
-				for dist, direction in route["path"]:
-					if (dist, direction) != (0, 0):
-						if direction:
-							currx += dist
-						else:
-							curry += dist 
-						cost += dist
 
-					else: 
-						number = coord_to_shop(currx, curry)
-						if number != -1: # load / unload at a store / warehouse
-							stock[number][0] += route["stops"][stop][0]
-							stock[number][1] += route["stops"][stop][1]
-						# load at a plant
-						truckp1 += route["stops"][stop][0]
-						truckp2 += route["stops"][stop][1]
-						stop += 1
+
+			for stop in range(len(route["stops"])):
+				number = coord_to_shop(currx, curry)
+				if number != -1: # load / unload at a store / warehouse
+					for k in range(2):
+						if route["stops"][stop][k] + stock[numb] <= shop_capacity[k][number]:
+							shop_capacity[k][number] -= stock[number][k]
+						else:
+							shop_capacity[k][number] = 0
+						stock[number][k] -= route["stops"][stop][k]
+
+					stock[number][1] += route["stops"][stop][1]
+				# load at a plant
+				truckp1 += route["stops"][stop][0]
+				truckp2 += route["stops"][stop][1]
 
 			for j in range(20):
 				for k in range(2):
