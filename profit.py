@@ -1,3 +1,12 @@
+from numpy import *
+
+past = loadtxt("monthly_sales.csv")
+
+def customers():
+	return [[[round(past[month, 2 * store + product] *
+		(0.9 + 0.2 * random.rand()) for product in range(2)]
+		for store in range(20)] for month in range(12)]
+
 def profit(schedule):
 	"""
 	schedule: A list of routes
