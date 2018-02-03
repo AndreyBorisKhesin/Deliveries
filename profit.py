@@ -29,8 +29,8 @@ shop_coords = {
 }
 
 def dist_from_shops(a, b):
-	return (abs(shop_coords.get(a)[0] - shop_coords.get(b)[0]) +
-		abs(shop_coords.get(a)[1] - shop_coords.get(b)[1]))
+	return (abs(shop_coords[a, 0] - shop_coords[b, 0]) +
+		abs(shop_coords[a, 1] - shop_coords[b, 1]))
 
 def total_dist(stops):
 	return sum([dist_from_shops(i, i + 1) for i in range(len(stops) - 1)])
@@ -46,67 +46,104 @@ def profit(schedule):
 	route: A dictionary that represents a delivery route of a truck
 		{	"date": int, 
 			"stops"; list of triples representing the point 
-			(store / warehouse / plant), number of p1 and p2 the drop off, 
-			"starting": starting point of truck	}
+				(store / warehouse / plant), number of p1 and
+				p2 to pick up / drop off
+		}
 		Example: 
-		{	"date": 98, 
-			"stops": [(20, 3, 5), (13, -4, 7), (15, -2, 0)], 	
-			"starting": (3, 5)	}
+		{	
+			"date": 98, 
+			"stops": [[20, 3, 5], [13, -4, 7], [15, -2, 0]]
+		}
 	"""
 	profits = []
+	
+	const ITER = 100
 
-	for i in len(range(100)):
+	for i in len(range(ITER)):
 
 		customers = customers() # (320, 20, 2)
 		cost = 0
 		revenue = 0
-		stock = zeros((22, 2)) # s1 - s20, w1, w2
+		stock = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0], [0, 0],
+			[1000000000, 1000000000], [1000000000, 1000000000]]
+		# s1 - s20, w1, w2, p1, p2
 		route_idx = 0
-		shop_capacity = [15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 
-						30, 30, 30, 35, 30, 40, 25, 20, 15, 20]
-		warehouse_capacity = [[650, 650], [650, 650]]
+		capacity = [15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30, 30,
+			30, 35, 30, 40, 25, 20, 15, 20, 650, 650, 1000000000,
+			1000000000]
 
-		for day in range(len(313)):
+		for day in range(313):
+
+			routes = []
 
 			for j in range(route_idx, len(schedule)):
 
-				truck_capacity = 
-
-				if schedule[j]["day"] == day:
-					route = schedule[j]
+				truck_capacity = [0, 0]
+				
+				if schedule[j, "date"] == day:
+					routes.add(schedule[j, "stops"])
 					route_idx += 1
 				else:
 				 	break
 			
-				currx, curry = route["starting"]
-				stop = 0
+			for route in routes:
+				cost += total_dist([route[i, 0] for i in
+					range(len(route))])
+				
+				truck = [0, 0]
 
+				for stop in route:
+					old_truck_values = truck[:]
 
-
-			for stop in range(len(route["stops"])):
-				number = coord_to_shop(currx, curry)
-				if number != -1: # load / unload at a store / warehouse
 					for k in range(2):
-						if route["stops"][stop][k] + stock[numb] <= shop_capacity[k][number]:
-							shop_capacity[k][number] -= stock[number][k]
-						else:
-							shop_capacity[k][number] = 0
-						stock[number][k] -= route["stops"][stop][k]
+						stop[k + 1] = max(min(
+							stop[k + 1],
+							stock[stop[0], k])
+							- truck[k])
+						stock[stop[0], k] = min(max(
+							stock[stop[0], k] +
+							stop[k + 1], 0),
+							capacity[stop[0]])
 
-					stock[number][1] += route["stops"][stop][1]
-				# load at a plant
-				truckp1 += route["stops"][stop][0]
-				truckp2 += route["stops"][stop][1]
+						# load / unload truck
+						truck[k] = max(stop[k], 0)
+						old_truck[k] += min(stop[k],
+							0)
+
+					# throw away extra
+					if 2 * truck[0] + truck[1] > 50:
+						if 2 * truck[0] <= 50:
+							truck[1] = (50 - 2 *
+								truck[0])
+						else:
+							truck = [25, 0]
+					else:
+						truck[0] += min(old_truck[0],
+							(50 - 2 * truck[0] -
+							truck[1]) // 2)
+						truck[1] += min(old_truck[1],
+							50 - 2 * truck[0] -
+							truck[1])
 
 			for j in range(20):
 				for k in range(2):
-					if customers[day][j][k] <= stock[j][k]:
-						revenue += (300 - 200 * k) * customers[day][j][k]
-					else:
-						revenue += (300 - 200 * k) * stock[j][k]
-						for l in range(customers[day][j][k] - stock[j][k]):
-							if random.rand() < 0.8 and day != 312:
-								customers[day + 1][j][k] += 1
+					old_stock = stock[j, k]
+					stock[j, k] = max(
+						customers[day, j, k] -
+						stock[j, k], 0)
+					if (customers[day, j, k] <=
+						stock[j, k]):
+					revenue += ((300 - 200 * k) *
+						old_stock - stock[j, k])
+					for l in range(customers[day, j, k] -
+						stock[j, k]):
+						if (random.rand() < 0.8 and
+							day != 312):
+							customers[day + 1, j,
+								k] += 1
 
 		profit = cost - revenue
 		profits.append(profit)
