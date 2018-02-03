@@ -2,6 +2,32 @@ from numpy import *
 
 past = loadtxt("monthly_sales.csv")
 
+def coord_to_shop(x, y):
+	return {
+		20:  0,
+		76:  1,
+		26:  2,
+		40:  3,
+		61:  4,
+		 4:  5,
+		17:  6,
+		45:  7,
+		73:  8,
+		87:  9,
+		 9: 10,
+		30: 11,
+		79: 12,
+		22: 13,
+		57: 14,
+		71: 15,
+		14: 16,
+		28: 17,
+		49: 18,
+		84: 19,
+		31: 20,
+		65: 21
+	}.get(7 * x + y, -1)
+
 def customers():
 	return [[[int(round(past[month, 2 * store + product] *
 		(0.9 + 0.2 * random.rand()))) for product in range(2)]
