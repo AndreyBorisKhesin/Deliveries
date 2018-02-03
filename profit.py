@@ -10,7 +10,7 @@ def customers():
 def profit(schedule):
 	"""
 	schedule: A list of routes
-	route: A dictionary that represents an annual delivery schedule
+	route: A dictionary that represents a delivery route of a truck
 		{	"date": int, 
 			"stops"; list of tuples representing the number of p1 and p2 the drop off, 
 			"path": list of tuples representing the distance and direction 
@@ -20,17 +20,35 @@ def profit(schedule):
 		{	"date": 98, 
 			"stops": [(3, 5), (-4, 7), (-2, 0)], 
 			"path": [(5, False), (0, True), (-3, True), (0, 0)]	
-			"starting": (3, 5)}
+			"starting": (3, 5)	}
 	"""
-	cost = 0
-	revenue = 0
+	profits = []
 
-	for route in schedule:
-		
-		currx, curry = route["starting"]
-		for dist, direction in route["path"]:
-			if (x, y) != (0, 0):
+	for i in len(range(100)):
+		customers = customers() # (320, 20, 2)
+		cost = 0
+		revenue = 0
 
+		for i in range(len(312)):
+
+			
+			
+			currx, curry = route["starting"]
+			for dist, direction in route["path"]:
+				if (dist, direction) != (0, 0):
+					if direction:
+						currx += dist
+					else:
+						curry += dist 
+					cost += dist
+
+				else: # load / unload
+				
+
+			customers[i]
+
+		profit = cost - revenue
+		profits.append(profit)
 
 	profit = cost - revenue
 	return profit
