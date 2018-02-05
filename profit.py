@@ -29,57 +29,77 @@ shop_coords = {
 }
 
 def dist_from_shops(a, b):
-	return (abs(shop_coords[a, 0] - shop_coords[b, 0]) +
-		abs(shop_coords[a, 1] - shop_coords[b, 1]))
+	return (abs(shop_coords[a][0] - shop_coords[b][0]) +
+		abs(shop_coords[a][1] - shop_coords[b][1]))
 
 def total_dist(stops):
-	return sum([dist_from_shops(i, i + 1) for i in range(len(stops) - 1)])
+	return sum([dist_from_shops(stops[i], stops[i + 1])
+		for i in range(len(stops) - 1)])
 
-def customers():
-	return [[[int(round(past[month, 2 * store + product] *
+def generate_customers():
+	days = [27, 24, 27, 25, 27, 26, 26, 27, 25, 27, 26, 26]
+	sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287]
+	customers = zeros((313, 20, 2))
+	monthly = asarray([[[int(round(past[month, 2 * store + product] *
 		(0.9 + 0.2 * random.rand()))) for product in range(2)]
-		for store in range(20)] for month in range(12)]
+		for store in range(20)] for month in range(12)])
+	for i in range(12):
+		for j in range(20):
+			for k in range(2):
+				for l in range(monthly[i, j, k]):
+					customers[int(sums[i] + days[i] *
+						random.rand()), j, k] += 1
+	return customers.astype(int)
 
-def schedule():
+def worst_schedule():
 	schedule = []
 
-	for day in range(1):
-		warehouse_capacity = [[560, 560], [560, 560]]
+	for day in range(313):
+		warehouse_capacity = [[650, 650], [650, 650]]
 		for w in range(2):
-			while warehouse_capacity[w][0] > 0 or warehouse_capacity[w][1] > 0:
+			while max(warehouse_capacity[w]) > 0:
 				p1, p2 = 0, 0
 				if warehouse_capacity[w][0] > 0:
-					p1 = 20 / 0.4
+					p1 = 25
 					warehouse_capacity[w][0] -= p1
 				if warehouse_capacity[w][1] > 0:
-					p2 = (20 - 0.4 * p1) // 0.8
+					p2 = int((20 - 0.8 * p1) / 0.4)
 					warehouse_capacity[w][1] -= p2
-				route = {"date": day, 
-						"stops": [[w+20, p1, p2], [w+22, -p1, -p2], [w+20, 0, 0]]}
-				schedule.append(route)
+				route = {
+					"date": day,
+					"stops": asarray([[w+20, 0, 0],
+						[w+22, p1, p2],
+						[w+20, -p1, -p2]])
+				}
+				schedule = append(schedule, [route])
 
 		# fill up stores (0 - 19)
-		shop_capacity = [[15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 
-						30, 30, 30, 35, 30, 40, 25, 20, 15, 20],
-						[15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 
-						30, 30, 30, 35, 30, 40, 25, 20, 15, 20]]
+		shop_capacity = [[15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30,
+			30, 30, 35, 30, 40, 25, 20, 15, 20], [15, 15, 20, 20,
+			15, 20, 30, 30, 35, 25, 30, 30, 30, 35, 30, 40, 25,
+			20, 15, 20]]
 	
 		for store in range(20):
 			if store in [0, 2, 3, 5, 6, 10, 11, 13, 16, 17]:
 				warehouse = 20
 			else:
 				warehouse = 21
-			while shop_capacity[0][store] > 0 or shop_capacity[1][store] > 0:
+			while max(shop_capacity[0][store],
+				shop_capacity[1][store]) > 0:
 				p1, p2 = 0, 0
-				if shop_capacity[0][store] > 0:
-					p1 = shop_capacity[0][store]
-					shop_capacity[0][store] = 0
 				if shop_capacity[1][store] > 0:
-					p2 = (20 - 0.4 * p1) // 0.8
-					shop_capacity[1][store] -= p2
-				route = {"date": day, 
-						"stops": [[warehouse, p1, p2], [store, -p1, -p2], [warehouse, 0, 0]]}
-				schedule.append(route)
+					p2 = shop_capacity[1][store]
+					shop_capacity[1][store] = 0
+				if shop_capacity[0][store] > 0:
+					p1 = int((20 - 0.4 * p2) / 0.8)
+					shop_capacity[0][store] -= p1
+				route = {
+					"date": day,
+					"stops": asarray([[warehouse, p1, p2],
+						[store, -p1, -p2],
+						[warehouse, 0, 0]])
+				}
+				schedule = append(schedule, [route])
 
 	return schedule
 
@@ -100,18 +120,17 @@ def profit(schedule):
 	"""
 	profits = []
 	
-	const ITER = 100
+	ITER = 1
 
-	for i in len(range(ITER)):
-
-		customers = customers() # (320, 20, 2)
+	for i in range(ITER):
+		customers = generate_customers() # (313, 20, 2)
 		cost = 0
 		revenue = 0
-		stock = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-			[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-			[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-			[0, 0], [0, 0], [0, 0], [0, 0],
-			[1000000000, 1000000000], [1000000000, 1000000000]]
+		stock = asarray([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0],	[0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0],	[0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0],	[0, 0], [0, 0], [0, 0], [0, 0],
+			[1000000000, 1000000000], [1000000000, 1000000000]])
 		# s1 - s20, w1, w2, p1, p2
 		route_idx = 0
 		capacity = [15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30, 30,
@@ -119,35 +138,32 @@ def profit(schedule):
 			1000000000]
 
 		for day in range(313):
-
 			routes = []
 
 			for j in range(route_idx, len(schedule)):
-
-				truck_capacity = [0, 0]
-				
-				if schedule[j, "date"] == day:
-					routes.add(schedule[j, "stops"])
+				if schedule[j]["date"] == day:
+					routes = (append(routes,
+						[schedule[j]["stops"]],
+						axis = 0) if not routes == []
+						else [schedule[j]["stops"]])
 					route_idx += 1
 				else:
 				 	break
-			
 			for route in routes:
-				cost += total_dist([route[i, 0] for i in
-					range(len(route))])
+				cost += total_dist(route[:, 0])
 				
 				truck = [0, 0]
 
 				for stop in route:
-					old_truck_values = truck[:]
+					old_truck = copy(truck)
 
 					for k in range(2):
 						stop[k + 1] = max(min(
 							stop[k + 1],
-							stock[stop[0], k])
+							stock[stop[0], k]),
 							- truck[k])
 						stock[stop[0], k] = min(max(
-							stock[stop[0], k] +
+							stock[stop[0], k] -
 							stop[k + 1], 0),
 							capacity[stop[0]])
 
@@ -174,21 +190,22 @@ def profit(schedule):
 			for j in range(20):
 				for k in range(2):
 					old_stock = stock[j, k]
-					stock[j, k] = max(
-						customers[day, j, k] -
-						stock[j, k], 0)
-					if (customers[day, j, k] <=
-						stock[j, k]):
+					stock[j, k] = max(stock[j, k] -
+						customers[day, j, k], 0)
 					revenue += ((300 - 200 * k) *
-						old_stock - stock[j, k])
+						(old_stock - stock[j, k]))
 					for l in range(customers[day, j, k] -
-						stock[j, k]):
+						old_stock):
 						if (random.rand() < 0.8 and
 							day != 312):
 							customers[day + 1, j,
 								k] += 1
 
-		profit = cost - revenue
-		profits.append(profit)
+		profit = revenue - cost
+		profits.append((revenue, cost))
 
 	return profits
+
+#c = generate_customers()
+#print([[[c[i,j,k] for k in range(2)] for j in range(20)] for i in range(313)])
+print(profit(worst_schedule()))
