@@ -1,6 +1,6 @@
 from numpy import *
 
-past = loadtxt("monthly_sales.csv")
+past = loadtxt("monthly_sales.csv").reshape((12, 20, 2))
 shop_coords = {
 	 0: ( 2, 6),
 	 1: (10, 6),
@@ -40,7 +40,7 @@ def generate_customers():
 	days = [27, 24, 27, 25, 27, 26, 26, 27, 25, 27, 26, 26]
 	sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287]
 	customers = zeros((313, 20, 2))
-	monthly = asarray([[[int(round(past[month, 2 * store + product] *
+	monthly = asarray([[[int(round(past[month, store, product] *
 		(0.9 + 0.2 * random.rand()))) for product in range(2)]
 		for store in range(20)] for month in range(12)])
 	for i in range(12):
@@ -67,17 +67,16 @@ def worst_schedule():
 					warehouse_capacity[w][1] -= p2
 				route = {
 					"date": day,
-					"stops": asarray([[w+20, 0, 0],
-						[w+22, p1, p2],
-						[w+20, -p1, -p2]])
+					"stops": asarray([[w + 20, 0, 0],
+						[w + 22, p1, p2],
+						[w + 20, - p1, - p2]])
 				}
 				schedule = append(schedule, [route])
 
 		# fill up stores (0 - 19)
-		shop_capacity = [[15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30,
-			30, 30, 35, 30, 40, 25, 20, 15, 20], [15, 15, 20, 20,
-			15, 20, 30, 30, 35, 25, 30, 30, 30, 35, 30, 40, 25,
-			20, 15, 20]]
+		shop_capacity = [[15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30, 30, 30, 35,
+			30, 40, 25, 20, 15, 20], [15, 15, 20, 20, 15, 20, 30, 30, 35, 25,
+			30, 30, 30, 35, 30, 40, 25, 20, 15, 20]]
 	
 		for store in range(20):
 			if store in [0, 2, 3, 5, 6, 10, 11, 13, 16, 17]:
@@ -126,29 +125,22 @@ def profit(schedule):
 		customers = generate_customers() # (313, 20, 2)
 		cost = 0
 		revenue = 0
-		stock = asarray([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-			[0, 0],	[0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-			[0, 0],	[0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
-			[0, 0],	[0, 0], [0, 0], [0, 0], [0, 0],
+		stock = array([[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
+			[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0],
 			[1000000000, 1000000000], [1000000000, 1000000000]])
 		# s1 - s20, w1, w2, p1, p2
-		route_idx = 0
-		capacity = [15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30, 30,
-			30, 35, 30, 40, 25, 20, 15, 20, 650, 650, 1000000000,
-			1000000000]
+		capacity = [15, 15, 20, 20, 15, 20, 30, 30, 35, 25, 30, 30, 30, 35, 30,
+			40, 25, 20, 15, 20, 650, 650, 1000000000, 1000000000]
 
 		for day in range(313):
 			routes = []
 
-			for j in range(route_idx, len(schedule)):
+			for j in range(len(schedule)):
 				if schedule[j]["date"] == day:
-					routes = (append(routes,
-						[schedule[j]["stops"]],
-						axis = 0) if not routes == []
-						else [schedule[j]["stops"]])
-					route_idx += 1
-				else:
-				 	break
+					routes = (append(routes, [schedule[j]["stops"]],
+						axis = 0) if not routes == [] else
+						[schedule[j]["stops"]])
 			for route in routes:
 				cost += total_dist(route[:, 0])
 				
@@ -158,34 +150,27 @@ def profit(schedule):
 					old_truck = copy(truck)
 
 					for k in range(2):
-						stop[k + 1] = max(min(
-							stop[k + 1],
-							stock[stop[0], k]),
-							- truck[k])
+						stop[k + 1] = max(min(stop[k + 1],
+							stock[stop[0], k]), - truck[k])
 						stock[stop[0], k] = min(max(
-							stock[stop[0], k] -
-							stop[k + 1], 0),
-							capacity[stop[0]])
+							stock[stop[0], k] - stop[k + 1],
+							0), capacity[stop[0]])
 
 						# load / unload truck
 						truck[k] = max(stop[k], 0)
-						old_truck[k] += min(stop[k],
-							0)
+						old_truck[k] += min(stop[k], 0)
 
 					# throw away extra
 					if 2 * truck[0] + truck[1] > 50:
 						if 2 * truck[0] <= 50:
-							truck[1] = (50 - 2 *
-								truck[0])
+							truck[1] = (50 - 2 * truck[0])
 						else:
 							truck = [25, 0]
 					else:
-						truck[0] += min(old_truck[0],
-							(50 - 2 * truck[0] -
-							truck[1]) // 2)
-						truck[1] += min(old_truck[1],
-							50 - 2 * truck[0] -
-							truck[1])
+						truck[0] += min(old_truck[0], (50 - 2 *
+							truck[0] - truck[1]) // 2)
+						truck[1] += min(old_truck[1], 50 - 2 *
+							truck[0] - truck[1])
 
 			for j in range(20):
 				for k in range(2):
@@ -194,12 +179,9 @@ def profit(schedule):
 						customers[day, j, k], 0)
 					revenue += ((300 - 200 * k) *
 						(old_stock - stock[j, k]))
-					for l in range(customers[day, j, k] -
-						old_stock):
-						if (random.rand() < 0.8 and
-							day != 312):
-							customers[day + 1, j,
-								k] += 1
+					for l in range(customers[day, j, k] - old_stock):
+						if (random.rand() < 0.8 and day != 312):
+							customers[day + 1, j, k] += 1
 
 		profit = revenue - cost
 		profits.append((revenue, cost))
