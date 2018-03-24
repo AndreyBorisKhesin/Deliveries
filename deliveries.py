@@ -28,7 +28,7 @@ shop_coords = {
 	23: ( 6, 1)
 }
 days = [27, 24, 27, 25, 27, 26, 26, 27, 25, 27, 26, 26]
-sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287]
+sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287, 313]
 
 def dist_from_shops(a, b):
 	return (abs(shop_coords[a][0] - shop_coords[b][0]) +
@@ -192,7 +192,7 @@ def extra_routes(month, day, cust_this_month, stock):
 	"""
 	Input:
 		day: day of the year
-		cust_this_month: The number of customers so far this months
+		cust_this_month: (20, 2)
 		stock: (24, 2)
 	Return:
 		Routes of extra trucks to send out with 1.2 times penalty
@@ -206,7 +206,7 @@ def extra_routes(month, day, cust_this_month, stock):
 			# expected = avg of the same month last year and 
 			# the number of customers so far this month
 			expected = 0.5 * (past[month, store, product] / days[month]) + \
-				0.5 * (cust_this_month / (day_of_month - 1))
+				0.5 * (cust_this_month[store, product] / (day_of_month - 1))
 
 			k = 1
 			# If k times expected customers is greater than the stocks
