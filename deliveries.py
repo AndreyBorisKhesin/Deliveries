@@ -206,7 +206,7 @@ def extra_routes(month, day, cust_this_month, stock):
 			# expected = avg of the same month last year and 
 			# the number of customers so far this month
 			expected = 0.5 * (past[month, store, product] / days[month]) + \
-				0.5 * (cust_this_month / day_of_month)
+				0.5 * (cust_this_month / (day_of_month - 1))
 
 			k = 1
 			# If k times expected customers is greater than the stocks
