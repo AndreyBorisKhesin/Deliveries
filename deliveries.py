@@ -29,6 +29,8 @@ shop_coords = {
 	22: ( 1, 4),
 	23: ( 6, 1)
 }
+days = [27, 24, 27, 25, 27, 26, 26, 27, 25, 27, 26, 26]
+sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287, 313]
 
 def dist_from_shops(a, b):
 	return (abs(shop_coords[a][0] - shop_coords[b][0]) +
@@ -39,8 +41,6 @@ def total_dist(stops):
 		for i in range(len(stops) - 1)])
 
 def generate_customers():
-	days = [27, 24, 27, 25, 27, 26, 26, 27, 25, 27, 26, 26]
-	sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287]
 	customers = zeros((313, 20, 2))
 	monthly = asarray([[[int(round(past[month, store, product] *
 		(0.9 + 0.2 * random.rand()))) for product in range(2)]
@@ -232,8 +232,9 @@ def profit(schedule, extra_route_function):
 				stock = execute_route(route, stock)
 			
 			month = month_from_day(day)
-			added_routes = extra_route_function(month, day, sum(customers[
-				sums[month]:sums[month + 1]], axis = 0), stock)
+			added_routes = extra_route_function(month, day, -ones((20, 2)) if
+				day == sums[month] else mean(customers[sums[month]:day],
+				axis = 0), stock)
 
 			for added_route in added_routes:
 				cost += 1.2 * total_dist(added_route[:, 0])
@@ -258,7 +259,46 @@ def profit(schedule, extra_route_function):
 
 	return profits
 
-def a():
-	return 1
+def extra_routes(month, day, mean_this_month, stock):
+	"""
+	Input:
+		day: day of the year
+		cust_this_month: (20, 2)
+		stock: (24, 2)
+	Return:
+		Routes of extra trucks to send out with 1.2 times penalty
+	"""
+	extra = []
+	day_of_month = day - sums[month]
 
-print(profit(worst_schedule(), a))
+	a = 0.5 #expected from historical data
+	b = 0.5 #expected from this month so far
+
+	for store in range(20):
+		p = [0, 0]
+		for product in range(2):
+			# expected = avg of the same month last year and 
+			# the number of customers so far this month
+			expected = (a * past[month, store, product] / days[month] +
+				b * mean_this_month[store, product])
+			if day_of_month == 0:
+				expected = ((a + b) * past[month, store, product] /
+					days[month])
+
+			k = 0
+			# If k times expected customers is greater than the stocks
+			if expected * k > stock[store, product]:
+				p[product] = capacity[store] - stock[store, product]
+	
+		if store in [0, 2, 3, 5, 6, 10, 11, 13, 16, 17]:
+			warehouse = 20
+		else:
+			warehouse = 21
+
+		route = array([[warehouse, p[0], p[1]],
+				[store, -p[0], -p[1]],
+				[warehouse, 0, 0]])
+		extra.append(route)
+	return extra
+
+print(profit(one_day_schedule(), extra_routes))
