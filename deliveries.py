@@ -227,17 +227,13 @@ def extra_routes(month, day, mean_this_month, stock, kval):
 	a = 0.5 #expected from historical data
 	b = 0.5 #expected from this month so far
 
-	warehouse_capacity = [625, 600] - stock[20:22]
+	warehouse_capacity = [650, 650] - stock[20:22]
 	w_trips = []
 	for w in range(2):
-		while max(warehouse_capacity[w]) >= 0:
-			p1, p2 = 0, 0
-			if warehouse_capacity[w][0] >= 0:
-				p1 = 25
-				warehouse_capacity[w][0] -= p1
-			if warehouse_capacity[w][1] >= 0:
-				p2 = int((20 - 0.8 * p1) / 0.4)
-				warehouse_capacity[w][1] -= p2
+		while warehouse_capacity[w].dot([2, 1]) >= 50:
+			p1 = min(25, warehouse_capacity[w][0])
+			p2 = min(50 - 2 * p1, warehouse_capacity[w][1])
+			warehouse_capacity[w] -= [p1, p2]
 			w_trips.append([w, p1, p2])
 
 	s_trips = []
