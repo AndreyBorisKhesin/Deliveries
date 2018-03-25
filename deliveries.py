@@ -30,11 +30,11 @@ shop_coords = {
 	23: ( 6, 1)
 }
 shop_to_p = [0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1]
-w1_shops = [5, 6, 7, 10, 0, 11, 2, 17, 13, 3, 16]
-w2_shops = [14, 18, 15, 4, 8, 12, 19, 9, 1]
+w1_shops = [5, 6, 10, 0, 11, 2, 17, 13, 3, 16]
+w2_shops = [7, 14, 18, 15, 4, 8, 12, 19, 9, 1]
+indices = [3, 9, 5, 8, 4, 0, 1, 0, 5, 8, 2, 4, 6, 7, 1, 3, 9, 6, 2, 7]
 days = [27, 24, 27, 25, 27, 26, 26, 27, 25, 27, 26, 26]
 sums = [0, 27, 51, 78, 103, 130, 156, 182, 209, 234, 261, 287, 313]
-lengths = []
 
 def dist_from_shops(a, b):
 	return (abs(shop_coords[a][0] - shop_coords[b][0]) +
@@ -87,7 +87,7 @@ def worst_schedule(max_day):
 			30, 30, 30, 35, 30, 40, 25, 20, 15, 20]]
 	
 		for store in range(20):
-			if store in [0, 2, 3, 5, 6, 10, 11, 13, 16, 17]:
+			if store in w1_shops:
 				warehouse = 20
 			else:
 				warehouse = 21
@@ -209,7 +209,7 @@ def profit(schedule, extra_route_function, kval):
 
 		profits.append(revenue - cost)
 
-	return profits
+	return mean(profits)
 
 def extra_routes(month, day, mean_this_month, stock, kval):
 	"""
@@ -227,20 +227,20 @@ def extra_routes(month, day, mean_this_month, stock, kval):
 	a = 0.5 #expected from historical data
 	b = 0.5 #expected from this month so far
 
-	warehouse_capacity = 600 - stock[20:22]
+	warehouse_capacity = [625, 600] - stock[20:22]
+	w_trips = []
 	for w in range(2):
-		while max(warehouse_capacity[w]) > 0:
+		while max(warehouse_capacity[w]) >= 0:
 			p1, p2 = 0, 0
-			if warehouse_capacity[w][0] > 0:
+			if warehouse_capacity[w][0] >= 0:
 				p1 = 25
 				warehouse_capacity[w][0] -= p1
-			if warehouse_capacity[w][1] > 0:
+			if warehouse_capacity[w][1] >= 0:
 				p2 = int((20 - 0.8 * p1) / 0.4)
 				warehouse_capacity[w][1] -= p2
-			extra.append(asarray([[w + 20, 0, 0],
-				[w + 22, p1, p2],
-				[w + 20, - p1, - p2]]))
+			w_trips.append([w, p1, p2])
 
+	s_trips = []
 	for store in range(20):
 		for product in [1, 0]:
 			# expected = avg of the same month last year and 
@@ -253,39 +253,44 @@ def extra_routes(month, day, mean_this_month, stock, kval):
 
 			# If k times expected customers is greater than the stocks
 			while (expected * kval >= capacity[store] -
-				shop_capacity[product][store]):
-				if store in [0, 2, 3, 5, 6, 10, 11, 13, 16, 17]:
-					warehouse = 20
-				else:
-					warehouse = 21
+				shop_capacity[product][store] and
+				shop_capacity[product][store] > 0):
 				p1, p2 = 0, 0
 				if product == 0:
 					p1 = min(25, shop_capacity[0][store])
-					shop_capacity[0][store] -= 25
+					p2 = min(50 - 2 * p1, shop_capacity[1][store])
 				else:
 					p2 = shop_capacity[1][store]
-					shop_capacity[1][store] = 0
+					p1 = min((50 - p2) // 2, shop_capacity[0][store])
+				shop_capacity[0][store] -= p1
+				shop_capacity[1][store] -= p2
 				if p1 + p2 > 0:
-					extra.append(asarray([[warehouse, p1, p2],
-						[store, -p1, -p2],
-						[warehouse, 0, 0]]))
-					#lengths.append(p1 * 2 + p2)
-	lengths.append(len(extra))
+					s_trips.append([store, p1, p2])
+	while len(w_trips) > 0:
+		w, p1, p2 = w_trips[0]
+		shops = w1_shops if w == 0 else w2_shops
+		best_trip, bti, mind = 0, -1, 10
+		for i, trip in enumerate(s_trips):
+			if trip[0] in shops and indices[trip[0]] < mind:
+				mind = indices[trip[0]]
+				best_trip = trip
+				bti = i
+		if bti == -1:
+			extra.append(array([[w + 20, 0, 0], [w + 22, p1, p2],
+				[w + 20, -p1, -p2]]))
+		else:
+			extra.append(array([[w + 20, best_trip[1], best_trip[2]],
+				[best_trip[0], -best_trip[1], -best_trip[2]],
+				[w + 22, p1, p2], [w + 20, -p1, -p2]]))
+			s_trips = delete(s_trips, bti, axis = 0)
+		w_trips = delete(w_trips, 0, axis = 0)
+	while len(s_trips) > 0:
+		s, p1, p2 = s_trips[0]
+		w = 20 if s in w1_shops else 21
+		extra.append(array([[w, p1, p2], [s, -p1, -p2], [w, 0, 0]]))
+		s_trips = delete(s_trips, 0, axis = 0)
 	return extra
 
-def a(i, j, k, l):
-	return []
-
-#mult = .2
-#
 for seed in range(20):
-#	for kval in range(20):
-#		random.seed(seed)
-#		p = profit(worst_schedule(1), extra_routes, mult * kval)
-#		print(seed, int(10 * mult * kval + 0.00001) / 10, mean(p))
 	random.seed(seed)
 	print(profit(worst_schedule(1), extra_routes, 1.2))
-	print(mean(lengths))
-	print(std(lengths))
-	lengths = []
-#print(profit(worst_schedule(313), a))
