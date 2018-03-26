@@ -47,15 +47,13 @@ def total_dist(stops):
 def generate_customers():
 	customers = zeros((313, 20, 2))
 	monthly = asarray([[[int(round(past[month, store, product] *
-		(1 + 0 * random.rand()))) for product in range(2)]
-		#(0.9 + 0.2 * random.rand()))) for product in range(2)]
+		(0.9 + 0.2 * random.rand()))) for product in range(2)]
 		for store in range(20)] for month in range(12)])
 	for i in range(12):
 		for j in range(20):
 			for k in range(2):
 				for l in range(monthly[i, j, k]):
 					customers[int(sums[i] + days[i] *
-						#l / monthly[i, j, k]), j, k] += 1
 						random.rand()), j, k] += 1
 	return customers.astype(int)
 
@@ -144,7 +142,7 @@ def execute_route(route, stock):
 def month_from_day(day):
 	return searchsorted(sums, day + 1) - 1
 
-def profit(schedule, extra_route_function, kval):
+def profit(schedule, extra_route_function):
 	"""
 	schedule: A list of routes
 	route: A dictionary that represents a delivery route of a truck
@@ -161,7 +159,7 @@ def profit(schedule, extra_route_function, kval):
 	"""
 	profits = []
 	
-	ITER = 1
+	ITER = 1000
 
 	for i in range(ITER):
 		customers = generate_customers() # (313, 20, 2)
@@ -187,7 +185,7 @@ def profit(schedule, extra_route_function, kval):
 			month = month_from_day(day)
 			added_routes = extra_route_function(month, day, -ones((20, 2)) if
 				day == sums[month] else mean(customers[sums[month]:day],
-				axis = 0), stock, kval)
+				axis = 0), stock)
 
 			for added_route in added_routes:
 				cost += 1.2 * total_dist(added_route[:, 0])
@@ -207,11 +205,12 @@ def profit(schedule, extra_route_function, kval):
 						if random.rand() < 0.8:
 							extra_customers[j, k] += 1
 
-		profits.append(revenue - cost)
+		profits.append([revenue - cost, revenue, cost])
+		print(len(profits), mean(profits, axis = 0), std(profits, axis = 0))
 
-	return mean(profits)
+	return mean(array(profits)[:, 0])
 
-def extra_routes(month, day, mean_this_month, stock, kval):
+def extra_routes(month, day, mean_this_month, stock):
 	"""
 	Input:
 		day: day of the year
@@ -248,7 +247,7 @@ def extra_routes(month, day, mean_this_month, stock, kval):
 					days[month])
 
 			# If k times expected customers is greater than the stocks
-			while (expected * kval >= capacity[store] -
+			while (1.2 * expected >= capacity[store] -
 				shop_capacity[product][store] and
 				shop_capacity[product][store] > 0):
 				p1, p2 = 0, 0
@@ -287,6 +286,4 @@ def extra_routes(month, day, mean_this_month, stock, kval):
 		s_trips = delete(s_trips, 0, axis = 0)
 	return extra
 
-for seed in range(20):
-	random.seed(seed)
-	print(profit(worst_schedule(1), extra_routes, 1.2))
+print(profit(worst_schedule(1), extra_routes))
