@@ -99,8 +99,8 @@ def worst_schedule(max_day):
 					p1 = min(int((20 - 0.4 * p2) / 0.8),
 						shop_capacity[0][store])
 					shop_capacity[0][store] -= p1
-				warehouse_capacity[w][0] += p1
-				warehouse_capacity[w][1] += p2
+				warehouse_capacity[warehouse - 20][0] += p1
+				warehouse_capacity[warehouse - 20][1] += p2
 				route = {
 					"date": day,
 					"stops": asarray([[warehouse, p1, p2],
