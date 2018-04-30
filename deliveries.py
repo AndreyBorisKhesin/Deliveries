@@ -99,11 +99,30 @@ def worst_schedule(max_day):
 					p1 = min(int((20 - 0.4 * p2) / 0.8),
 						shop_capacity[0][store])
 					shop_capacity[0][store] -= p1
+				warehouse_capacity[w][0] += p1
+				warehouse_capacity[w][1] += p2
 				route = {
 					"date": day,
 					"stops": asarray([[warehouse, p1, p2],
 						[store, -p1, -p2],
 						[warehouse, 0, 0]])
+				}
+				schedule.append(route)
+
+		for w in range(2):
+			while max(warehouse_capacity[w]) > 0:
+				p1, p2 = 0, 0
+				if warehouse_capacity[w][0] > 0:
+					p1 = 25
+					warehouse_capacity[w][0] -= p1
+				if warehouse_capacity[w][1] > 0:
+					p2 = int((20 - 0.8 * p1) / 0.4)
+					warehouse_capacity[w][1] -= p2
+				route = {
+					"date": day,
+					"stops": asarray([[w + 20, 0, 0],
+						[w + 22, p1, p2],
+						[w + 20, - p1, - p2]])
 				}
 				schedule.append(route)
 
@@ -286,4 +305,5 @@ def extra_routes(month, day, mean_this_month, stock):
 		s_trips = delete(s_trips, 0, axis = 0)
 	return extra
 
+print(worst_schedule(1))
 print(profit(worst_schedule(1), extra_routes))
