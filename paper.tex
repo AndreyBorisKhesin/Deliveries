@@ -6,7 +6,9 @@
 \paperauth{A}{Khesin}{University of Toronto}
 \paperdate{April 30th, 2018}
 \begin{paperabs}
-Abstract goes here
+In this paper, we analyze the most efficient way to plan delivery routes for trucks delivering heaters and conditioners from plants, to warehouses, and then to stores.
+We find that an efficient way to do this is to not plan the schedule in advance but instead to order trucks from the rental agency as needed, for a 20\% surcharge.
+The resulting expected profit was found to be 17 440 000 Euros with a standard deviation of 70 000 Euros.
 \end{paperabs}
 \begin{paper}
 \papersec{Introduction}
@@ -65,8 +67,8 @@ prices of a heater and an air conditioner, compared to the expenses of driving
 delivery trucks, even when considered with a 20\% penalty.
 In fact, the price of a single heater is enough to cover even the longest of
 delivery routes to a single shop.
-This means that even missing out on a single sale is more costly than paying the
-extra money to make sure that a shop is fully stocked.
+This means that even missing out on a single sale is more costly than paying 
+extra to make sure that a shop is fully stocked.
 
 The result is that it is better to pay a 20\% fee on the relatively small cost
 of deliveries to ensure that there will be enough of each product for the coming
@@ -91,8 +93,8 @@ The coefficient was chosen as 1.2 as it gave the best average profit in our simu
 If the value were lower, then sales would be lost.
 If the value were higher, then too much money would be spent by unnecessarily restocking the shops.
 
-Meanwhile, a warehouse is refilled if it can fit 50 heaters or 25 air conditioners, e.g. one truckload.
-The route to restock the warehouse is appended to one of the routes to restock the shops, (if there are any such routes) by minimizing total distance.
+Meanwhile, a warehouse is refilled if it has fewer than 600 heaters or 625 air conditioners, e.g. it can fit one more truckload.
+The route to restock the warehouse is appended to one of the routes to restock the shops by minimizing total distance.
 Thus, if warehouse $W_1$ needs to be refilled, it prioritizes appending the route to the first shop that is being refilled in the following list: $S_6$, $S_7$, $S_{11}$, $S_1$, $S_{12}$, $S_3$, $S_{18}$, $S_{14}$, $S_4$, $S_{17}$.
 For warehouse $W_2$, the order is $S_8$, $S_{15}$, $S_{19}$, $S_{16}$, $S_5$, $S_9$, $S_{13}$, $S_{20}$, $S_{10}$, $S_2$.
 
@@ -127,5 +129,11 @@ This disparity only goes to show that it is worth paying a 20\% in the name of m
 In fact, even a very inefficient delivary schedule that ensures no customer is ever disappointed will have total expenses in the hundreds of thousands of Euros, which is still a tiny fraction of the proft.
 Overall, the year to year fluctuations of customers by as much as 10\% will make more of an impact on the company's profit than their delivery schedule will.
 
+\papersec{Code}
+
+Below we include the code used to compute this result.
 \end{paper}
+
+\lstinputlisting[language=python]{deliveries.py}
+
 \end{document}

@@ -8,7 +8,8 @@
 \usepackage[strict]{changepage}
 \usepackage{chngcntr}
 \usepackage[americanvoltage,siunitx]{circuitikz}
-\usepackage{color,colortbl}
+\usepackage{color}
+\usepackage{colortbl}
 \usepackage{etoolbox}
 \usepackage{fancyhdr}
 \usepackage[T1]{fontenc}
@@ -18,6 +19,7 @@
 \usepackage{hyperref}
 \usepackage{import}
 \usepackage{indentfirst}
+\usepackage{listings}
 \usepackage{mathptmx}
 \usepackage{mathrsfs}
 \usepackage{multicol}
@@ -33,6 +35,32 @@
 \usepackage{xspace}
 
 \patchcmd{\thebibliography}{\section*{\refname}}{\vspace{-1em}}{}{}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
 
 \captionsetup{labelformat=empty,labelsep=none}
 \usepgfplotslibrary{external}
