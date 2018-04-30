@@ -29,7 +29,6 @@ shop_coords = {
 	22: ( 1, 4),
 	23: ( 6, 1)
 }
-shop_to_p = [0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1]
 w1_shops = [5, 6, 10, 0, 11, 2, 17, 13, 3, 16]
 w2_shops = [7, 14, 18, 15, 4, 8, 12, 19, 9, 1]
 indices = [3, 9, 5, 8, 4, 0, 1, 0, 5, 8, 2, 4, 6, 7, 1, 3, 9, 6, 2, 7]
@@ -57,7 +56,7 @@ def generate_customers():
 						random.rand()), j, k] += 1
 	return customers.astype(int)
 
-def worst_schedule(max_day):
+def maximal_schedule(max_day):
 	schedule = []
 
 	for day in range(max_day):
@@ -225,7 +224,6 @@ def profit(schedule, extra_route_function):
 							extra_customers[j, k] += 1
 
 		profits.append([revenue - cost, revenue, cost])
-		print(len(profits), mean(profits, axis = 0), std(profits, axis = 0))
 
 	return mean(array(profits)[:, 0])
 
@@ -305,4 +303,5 @@ def extra_routes(month, day, mean_this_month, stock):
 		s_trips = delete(s_trips, 0, axis = 0)
 	return extra
 
-print(profit(worst_schedule(1), extra_routes))
+profits = profit(maximal_schedule(1), extra_routes)
+print(mean(profits, axis = 0), std(profits, axis = 0))

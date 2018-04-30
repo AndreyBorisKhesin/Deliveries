@@ -26,6 +26,7 @@ listed below.
 Trucks, when starting their route from the warehouse, are only allowed to
 deliver items to a shop, pick up items at a plant, or both in that order, after
 which they must return to the warehouse they departed from.
+Thus, going directly from one shop to another is not allowed.
 \item
 The number of customers for a given shop, for a given product is determined
 as follows.
@@ -66,6 +67,38 @@ In fact, the price of a single heater is enough to cover even the longest of
 delivery routes to a single shop.
 This means that even missing out on a single sale is more costly than paying the
 extra money to make sure that a shop is fully stocked.
+
+The result is that it is better to pay a 20\% fee on the relatively small cost
+of deliveries to ensure that there will be enough of each product for the coming
+customers.
+Thus, the only part of the schedule that is ordered in advance is a list of 149 truck
+routes, to fill the warehouses, fill the stores, then refill the warehouses.
+This is done as described below.
+
+To fill a warehouse, trucks always drive to the plant whose number matches that
+of the warehouse.
+Although plant $P_2$ is equidistant from warehouses $W_1$ and $W_2$, distributing the production
+this way is sensible.
+Shops $S_1$, $S_3$, $S_4$, $S_6$, $S_7$, $S_{11}$, $S_{12}$, $S_{14}$, $S_{17}$, $S_{18}$ are refilled from warehouse $W_1$, while shops $S_2$, $S_5$, $S_8$, $S_9$, $S_{10}$, $S_{13}$, $S_{15}$, $S_{16}$, $S_{19}$, $S_{20}$ are refilled from warehouse $W_2$.
+
+After the first day, all trucks are purchased the day of at a 20\% fee.
+Every day, the expected number of customers for each shop, for each product is determined as the average of 
+the mean number of daily customers that came to that shop in 2015 and the mean number of customers that have come to the
+shop so far this month.
+(If it is currently the first day of the month, the expected number of customers is just the mean number of daily customers that came to that shop in 2015.)
+A truck is dispatched to refill the shop if the shop's stock falls below 1.2 times the expected number of customers.
+The coefficient was chosen as 1.2 as it gave the best average profit in our simulations.
+If the value were lower, then sales would be lost.
+If the value were higher, then too much money would be spent by unnecessarily restocking the shops.
+
+Meanwhile, a warehouse is refilled if it can fit 50 heaters or 25 air conditioners, e.g. one truckload.
+The route to restock the warehouse is appended to one of the routes to restock the shops, (if there are any such routes) by minimizing total distance.
+Thus, if warehouse $W_1$ needs to be refilled, it prioritizes appending the route to the first shop that is being refilled in the following list: $S_6$, $S_7$, $S_{11}$, $S_1$, $S_{12}$, $S_3$, $S_{18}$, $S_{14}$, $S_4$, $S_{17}$.
+For warehouse $W_2$, the order is $S_8$, $S_{15}$, $S_{19}$, $S_{16}$, $S_5$, $S_9$, $S_{13}$, $S_{20}$, $S_{10}$, $S_2$.
+
+To ensure that the plants always have sufficient products, each produces 650 of each product, and then produces up to that amount whenever any is taken out for the purposes of refilling a warehouse.
+
+This fully describes the algorithm that was used.
 
 \papersec{Data}
 
