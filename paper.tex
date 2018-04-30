@@ -106,11 +106,26 @@ Data goes here
 
 \papersec{Analysis}
 
-Analysis goes here
+The provided algorithm is too complex to accurately compute a probability law for without a Monte Carlo simulation.
+Additionally, if the customer amounts and distributions were taken at their average values, then the resulting profits would be overreported as expenses increase with large fluctuations in the number of customers.
+
+All values that follow are in Euros, and are rounded to the nearest Euro.
+After simulating 1000 possible equally likely scenarios by customer distribution, the average revenue was determined to be \SI{17487888}{} with a standard deviation of \SI{67751}{}, giving an expected revenue of $(17.49\pm.07)M$.
+The average expenses were determined to be \SI{45068}{} with a standard deviation of \SI{200}{}, giving expected expenses of $(45.1\pm.2)K$.
+Meanwhile, the average profit was determined to be \SI{17442820}{} with a standard deviation of \SI{67603}{}, giving an expected profit of $(17.44\pm.07)M$.
+
+Thus, the expected profit is 17 442 820 Euros, with a standard deviation of 67 603 Euros.
+Considering the significant digits are random noise, we can confidently state that the expected profit will be 17 440 000 Euros, with a standard deviation of 70 000 Euros.
 
 \papersec{Conclusion}
 
-Conclusion goes here
+As we have shown, without full foresight of when the customers will arive, the most efficient way we could determine of delivering the heaters and air conditioners was using current information to make efficient decisions about how to plan delivery routes.
+This resulted in an expected profit of 17 440 000 Euros, with a standard deviation of 70 000 Euros.
+
+It is worth noting that a single standard deviation in the revenue and the profit is noticably more than all of the combined expenses.
+This disparity only goes to show that it is worth paying a 20\% in the name of maximizing revenues, as the latter will be significantly higher than the expenses.
+In fact, even a very inefficient delivary schedule that ensures no customer is ever disappointed will have total expenses in the hundreds of thousands of Euros, which is still a tiny fraction of the proft.
+Overall, the year to year fluctuations of customers by as much as 10\% will make more of an impact on the company's profit than their delivery schedule will.
 
 \end{paper}
 \end{document}
