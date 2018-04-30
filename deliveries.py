@@ -305,5 +305,4 @@ def extra_routes(month, day, mean_this_month, stock):
 		s_trips = delete(s_trips, 0, axis = 0)
 	return extra
 
-print(worst_schedule(1))
 print(profit(worst_schedule(1), extra_routes))
